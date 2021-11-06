@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate.location;
+import static org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent;
 
 /**
  * Base class for all implementations of drivers
@@ -497,6 +498,50 @@ public abstract class AbstractWebDriver {
         return getWebDriverWait(elementOperate).until(driver -> webDriver.findElements(by));
     }
 
+    // ================= scroll =================
+
+    /**
+     * 向上滚动
+     *
+     * @param distance 滚动的距离
+     */
+    public AbstractWebDriver scrollUp(int distance) {
+        return this.executeJs("window.scrollBy(0, -" + distance + ")");
+    }
+
+    /**
+     * 滚动到窗口顶部（不支持IE）
+     */
+    public AbstractWebDriver scrollToTop() {
+        return this.executeJs("window.scrollTo({ behavior: 'smooth', left: 0, top: 0})");
+    }
+
+    /**
+     * 向上滚动
+     *
+     * @param distance 滚动的距离
+     */
+    public AbstractWebDriver scrollDown(int distance) {
+        return this.executeJs("window.scrollBy(0, " + distance + ")");
+    }
+
+    /**
+     * 滚动到窗口底部（不支持IE）
+     */
+    public AbstractWebDriver scrollToBottom() {
+        return this.executeJs("window.scrollTo({ behavior: 'smooth', left: 0, top: Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, document.documentElement.clientHeight)})");
+    }
+
+    /**
+     * 滚动到指定元素
+     *
+     * @param by 定位器
+     */
+    public AbstractWebDriver scrollToElement(By by) {
+        WebElement element = findElement(by);
+        return this.executeJs("arguments[0].scrollIntoView(false)", element);
+    }
+
     // =============== execute js ===============
 
     /**
@@ -551,6 +596,20 @@ public abstract class AbstractWebDriver {
      */
     public Object executeJsAndReturn(String js, Object... args) {
         return javascriptExecutor.executeScript(js, args);
+    }
+
+    // ================= alert ==================
+
+    public AbstractWebDriver alert(boolean accept) {
+        return accept ? alert(location().acceptAlert().build()) : alert(location().dismissAlert().build());
+    }
+
+    public AbstractWebDriver alert(ElementOperate elementOperate) {
+        WebDriverWait webDriverWait = getWebDriverWait(elementOperate);
+        Alert alert = webDriverWait.until(alertIsPresent());
+        if (elementOperate.isAcceptAlert()) alert.accept();
+        else alert.dismiss();
+        return this;
     }
 
     // =============== navigation ===============

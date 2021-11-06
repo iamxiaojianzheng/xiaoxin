@@ -34,6 +34,9 @@ public class ElementOperate {
     private String inputText;
     private boolean clear = false;
 
+    // alert
+    private boolean acceptAlert = false;
+
     public static LocationBuilder location() {
         return new LocationBuilder(new ElementOperate());
     }
@@ -107,6 +110,22 @@ public class ElementOperate {
          */
         public LocationBuilder clear() {
             this.elementOperate.setClear(true);
+            return this;
+        }
+
+        /**
+         * 确定alert
+         */
+        public LocationBuilder dismissAlert() {
+            this.elementOperate.setAcceptAlert(false);
+            return this;
+        }
+
+        /**
+         * 取消alert
+         */
+        public LocationBuilder acceptAlert() {
+            this.elementOperate.setAcceptAlert(true);
             return this;
         }
 

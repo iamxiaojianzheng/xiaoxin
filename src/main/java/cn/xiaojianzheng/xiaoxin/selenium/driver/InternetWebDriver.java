@@ -38,4 +38,16 @@ public class InternetWebDriver extends AbstractWebDriver {
         }
     }
 
+    @Override
+    public AbstractWebDriver scrollToTop() {
+        // IE11 适配
+        return this.executeJs("window.scrollTo(0, 0)");
+    }
+
+    @Override
+    public AbstractWebDriver scrollToBottom() {
+        // IE11 适配
+        return this.executeJs("window.scrollTo(0, Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, document.documentElement.clientHeight))");
+    }
+
 }

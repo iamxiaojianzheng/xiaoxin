@@ -16,9 +16,9 @@ import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
  *     }
  *
  *     // if PageObjectUtil.enablePreloading = true
- *     // The following Element or Elements will be pre-searched after Page is initialized
- *     private final Element searchInput = new Element(ElementOperate.location().id("kw").build());
- *     private final Element searchButton = new Element(ElementOperate.location().id("su").build());
+ *     // The following ElementBehavior or Elements will be pre-searched after Page is initialized
+ *     private final ElementBehavior searchInput = new ElementBehavior(ElementOperate.location().id("kw").build());
+ *     private final ElementBehavior searchButton = new ElementBehavior(ElementOperate.location().id("su").build());
  *
  *     public void baidu(String text) {
  *         getSearchInput().input(text);

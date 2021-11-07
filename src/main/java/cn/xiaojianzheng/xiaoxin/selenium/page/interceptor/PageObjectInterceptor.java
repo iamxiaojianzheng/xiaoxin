@@ -8,8 +8,6 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * 拦截Page所有get的调用方法，用于回填 {@link cn.xiaojianzheng.xiaoxin.selenium.page.Element }
@@ -18,13 +16,7 @@ import java.util.function.Function;
  * @author JIAHE
  * @since 1.0
  */
-public class PageObjectInterceptor implements MethodInterceptor {
-
-    private final Function<Object, AbstractWebDriver> getWebDriver =
-            obj -> (AbstractWebDriver) ReflectUtil.getFieldValue(obj, "webDriver");
-
-    private final BiConsumer<Object, AbstractWebDriver> setWebDriver =
-            (obj, driver) -> ReflectUtil.setFieldValue(obj, "webDriver", driver);
+public class PageObjectInterceptor extends AbstractInterceptor implements MethodInterceptor {
 
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {

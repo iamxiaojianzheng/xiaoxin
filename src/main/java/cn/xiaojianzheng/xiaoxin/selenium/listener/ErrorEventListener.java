@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 用于处理异常情况
+ * log event listener for error
  *
  * @author JIAHE
  * @since 1.0

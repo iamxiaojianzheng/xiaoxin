@@ -11,13 +11,12 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 class PageObjectTest extends DriverTest {
-
     @Test
     void test() {
         InternetWebDriver driver = ie();
-        BaiduPage page = new BaiduPage(driver);
-        page.open("http://www.baidu.com/");
-        page.baidu("java");
+        BaiduPage baiduPage = new BaiduPage(driver);
+        baiduPage.open("http://www.baidu.com/");
+        // 这里会报错，请使用 PageObjectUtil.wrapPage 包装 BaiduPage
+        baiduPage.baidu("java");
     }
-
 }

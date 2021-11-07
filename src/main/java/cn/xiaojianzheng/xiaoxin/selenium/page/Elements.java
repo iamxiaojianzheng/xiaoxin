@@ -2,6 +2,7 @@ package cn.xiaojianzheng.xiaoxin.selenium.page;
 
 import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
@@ -26,12 +27,16 @@ public class Elements {
 
     private ElementOperate elementOperate;
 
+    public Elements(By by) {
+        this(ElementOperate.location().by(by).build());
+    }
+
     public Elements(ElementOperate elementOperate) {
         this.elementOperate = elementOperate;
     }
 
     public List<WebElement> getElements() {
-        return webDriver.findElements(elementOperate);
+        return elements;
     }
 
 }

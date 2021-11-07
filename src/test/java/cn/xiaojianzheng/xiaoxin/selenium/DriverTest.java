@@ -63,7 +63,7 @@ public class DriverTest {
 
     protected InternetWebDriver ie() {
         driver = DriverBuilder.driver()
-                .ie().driverPath(driverPath).globalWaitTime(Duration.ofSeconds(30)).build();
+                .ie().driverPath(driverPath).globalWaitTime(Duration.ofSeconds(5)).build();
         return (InternetWebDriver) driver;
     }
 

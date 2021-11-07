@@ -2,9 +2,11 @@ package cn.xiaojianzheng.xiaoxin.selenium.driver;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.xiaojianzheng.xiaoxin.selenium.listener.ErrorEventListener;
-import cn.xiaojianzheng.xiaoxin.selenium.listener.FocusColorListener;
-import cn.xiaojianzheng.xiaoxin.selenium.listener.LogEventListener;
+import cn.hutool.core.util.StrUtil;
+import cn.xiaojianzheng.xiaoxin.selenium.base.ElementBehavior;
+import cn.xiaojianzheng.xiaoxin.selenium.base.UntilCondition;
+import cn.xiaojianzheng.xiaoxin.selenium.base.WindowBehavior;
+import cn.xiaojianzheng.xiaoxin.selenium.listener.*;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
 import lombok.Getter;
 import org.openqa.selenium.*;
@@ -12,7 +14,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.events.EventFiringDecorator;
 import org.openqa.selenium.support.events.WebDriverListener;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate.location;
-import static org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent;
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
  * Base class for all implementations of drivers
@@ -33,7 +34,8 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent;
  * @since 1.0
  */
 @SuppressWarnings("unused")
-public abstract class AbstractWebDriver {
+public abstract class AbstractWebDriver
+        implements WindowBehavior<AbstractWebDriver>, ElementBehavior<AbstractWebDriver>, UntilCondition<AbstractWebDriver> {
 
     private final Duration DEFAULT_WAIT_TIME = Duration.ofSeconds(60);
 
@@ -54,7 +56,9 @@ public abstract class AbstractWebDriver {
 
     protected AbstractWebDriver(WebDriver webDriver) {
         WebDriverListener[] listeners = new WebDriverListener[]{
-                new LogEventListener(), new ErrorEventListener(), new FocusColorListener()
+                new WebDriverLogEventListener(), new ErrorEventListener(), new FocusColorListener(),
+                new TimeoutsLogEventListener(), new AlertLogEventListener(), new WindowLogEventListener(),
+                new NavigationLogEventListener(), new WebElementLogEventListener(), new OptionsLogEventListener()
         };
         this.webDriver = new EventFiringDecorator(listeners).decorate(webDriver);
         this.actions = new Actions(this.webDriver);
@@ -225,9 +229,6 @@ public abstract class AbstractWebDriver {
 
     /**
      * 关闭当前窗口，如果它是当前打开的最后一个窗口，则退出浏览器。
-     * <p>
-     * See <a href="https://w3c.github.io/webdriver/#close-window">W3C WebDriver specification</a>
-     * for more details.
      *
      * @return This driver focused on the given window
      */
@@ -238,19 +239,17 @@ public abstract class AbstractWebDriver {
 
     /**
      * 关闭当前窗口并将此驱动程序的未来命令的焦点切换到具有给定名称句柄的窗口。
-     * <p>
-     * See <a href="https://w3c.github.io/webdriver/#switch-to-window">W3C WebDriver specification</a>
-     * for more details.
      *
-     * @param nameOrHandle The name of the window or the handle as returned by
-     *                     {@link WebDriver#getWindowHandle()}
-     * @return This driver focused on the given window
-     * @throws NoSuchWindowException If the window cannot be found
+     * @param nameOrHandle {@link WebDriver#getWindowHandle()}返回的窗口或句柄的名称
+     * @throws NoSuchWindowException 如果找不对对应的窗口
      */
     public AbstractWebDriver closeAndSwitch(String nameOrHandle) {
         return close().switchWindow(nameOrHandle);
     }
 
+    /**
+     * 退出这个驱动程序，关闭所有相关的窗口
+     */
     public void quit() {
         webDriver.quit();
     }
@@ -299,7 +298,7 @@ public abstract class AbstractWebDriver {
                 return this;
             }
         }
-        throw new NoSuchWindowException("Cannot find the window whose title contains keyword");
+        throw new NoSuchWindowException(StrUtil.format("Cannot find the window whose title contains keyword[%s] ", nameKeyword));
     }
 
     // ============== switch iframe ==============
@@ -347,43 +346,45 @@ public abstract class AbstractWebDriver {
         return click(location().by(by).build());
     }
 
+//    /**
+//     * 单击此元素，详情查看{@link AbstractWebDriver#click(By by)}方法。
+//     */
+//    public AbstractWebDriver click(ElementOperate elementOperate) {
+//    }
+
     /**
      * 单击此元素，详情查看{@link AbstractWebDriver#click(By by)}方法。
      */
     public AbstractWebDriver click(ElementOperate elementOperate) {
-        By by = elementOperate.getBy();
-        this.defaultWebDriverWait.until(ExpectedConditions.presenceOfElementLocated(by));
-        this.defaultWebDriverWait.until(ExpectedConditions.visibilityOfElementLocated(by));
-        this.defaultWebDriverWait.until(ExpectedConditions.elementToBeClickable(by));
-
         WebElement element = findElement(elementOperate);
-        return click(elementOperate, element);
-    }
-
-    /**
-     * 单击此元素，详情查看{@link AbstractWebDriver#click(By by)}方法。
-     */
-    public AbstractWebDriver click(ElementOperate elementOperate, WebElement element) {
         int clickTimes = Math.max(elementOperate.getClickTimes(), 1);
 
         for (int i = 0; i < clickTimes; i++) {
             if (elementOperate.isJsClick()) {
                 this.executeJs("arguments[0].click()", element);
 
-            } else if (elementOperate.isActionClick()) {
-                this.actions.click(element).perform();
-
-            } else if (elementOperate.isDoubleClick()) {
-                this.actions.doubleClick(element).perform();
-
-            } else if (elementOperate.isMoveToClick()) {
-                this.actions.moveToElement(element).click().perform();
-
-            } else if (elementOperate.isRightClick()) {
-                this.actions.contextClick(element).perform();
-
             } else {
-                element.click();
+                By by = elementOperate.getBy();
+                this.defaultWebDriverWait.until(presenceOfElementLocated(by));      // 元素是否在页面，不一定可见
+                this.defaultWebDriverWait.until(elementToBeClickable(by));          // 元素是否可见，需要有宽高，元素是否可点击
+
+                if (elementOperate.isActionClick()) {
+                    this.actions.click(element).perform();
+
+                } else if (elementOperate.isDoubleClick()) {
+                    this.actions.doubleClick(element).perform();
+
+                } else if (elementOperate.isMoveToClick()) {
+                    this.actions.moveToElement(element).perform();
+                    this.scrollToElement(element);
+                    this.actions.click().perform();
+
+                } else if (elementOperate.isRightClick()) {
+                    this.actions.contextClick(element).perform();
+
+                } else {
+                    element.click();
+                }
             }
         }
 
@@ -539,6 +540,10 @@ public abstract class AbstractWebDriver {
      */
     public AbstractWebDriver scrollToElement(By by) {
         WebElement element = findElement(by);
+        return scrollToElement(element);
+    }
+
+    public AbstractWebDriver scrollToElement(WebElement element) {
         return this.executeJs("arguments[0].scrollIntoView(false)", element);
     }
 

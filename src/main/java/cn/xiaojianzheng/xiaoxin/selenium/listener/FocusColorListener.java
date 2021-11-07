@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * log event listener for marking border of element
+ *
  * @author JIAHE
  * @since 1.0
  */

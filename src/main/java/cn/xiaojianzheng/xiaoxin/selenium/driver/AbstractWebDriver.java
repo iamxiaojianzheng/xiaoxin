@@ -7,6 +7,7 @@ import cn.xiaojianzheng.xiaoxin.selenium.base.ElementBehavior;
 import cn.xiaojianzheng.xiaoxin.selenium.base.UntilCondition;
 import cn.xiaojianzheng.xiaoxin.selenium.base.WindowBehavior;
 import cn.xiaojianzheng.xiaoxin.selenium.listener.*;
+import cn.xiaojianzheng.xiaoxin.selenium.listener.decorator.WindowDecorator;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
 import lombok.Getter;
 import org.openqa.selenium.*;
@@ -50,6 +51,7 @@ public abstract class AbstractWebDriver
     @Getter
     private final WebDriver.Navigation navigation;
 
+    @Getter
     private WebDriverWait defaultWebDriverWait;
 
     private final JavascriptExecutor javascriptExecutor;
@@ -60,7 +62,9 @@ public abstract class AbstractWebDriver
                 new TimeoutsLogEventListener(), new AlertLogEventListener(), new WindowLogEventListener(),
                 new NavigationLogEventListener(), new WebElementLogEventListener(), new OptionsLogEventListener()
         };
-        this.webDriver = new EventFiringDecorator(listeners).decorate(webDriver);
+        EventFiringDecorator eventFiringDecorator = new EventFiringDecorator(listeners);
+
+        this.webDriver = eventFiringDecorator.decorate(webDriver);
         this.actions = new Actions(this.webDriver);
         this.navigation = this.webDriver.navigate();
         this.javascriptExecutor = ((JavascriptExecutor) this.webDriver);

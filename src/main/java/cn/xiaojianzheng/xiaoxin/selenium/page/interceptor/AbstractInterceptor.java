@@ -19,25 +19,28 @@ import java.util.function.Function;
 @SuppressWarnings("unchecked")
 public abstract class AbstractInterceptor {
 
-    protected final Function<Object, AbstractWebDriver> getWebDriver =
+    protected static final Function<Object, AbstractWebDriver> getWebDriver =
             obj -> (AbstractWebDriver) ReflectUtil.getFieldValue(obj, "webDriver");
 
-    protected final BiConsumer<Object, AbstractWebDriver> setWebDriver =
+    protected static final BiConsumer<Object, AbstractWebDriver> setWebDriver =
             (obj, driver) -> ReflectUtil.setFieldValue(obj, "webDriver", driver);
 
-    protected final Function<Object, WebElement> getElement =
-            obj -> (WebElement) ReflectUtil.getFieldValue(obj, "element");
+    protected static final Function<Object, WebElement> getElement =
+            obj -> (WebElement) ReflectUtil.getFieldValue(obj, "webElement");
 
-    protected final BiConsumer<Object, WebElement> setElement =
-            (obj, element) -> ReflectUtil.setFieldValue(obj, "element", element);
+    protected static final BiConsumer<Object, WebElement> setElement =
+            (obj, element) -> ReflectUtil.setFieldValue(obj, "webElement", element);
 
-    protected final Function<Object, List<WebElement>> getElements =
-            obj -> (List<WebElement>) ReflectUtil.getFieldValue(obj, "elements");
+    protected static final Function<Object, List<WebElement>> getElements =
+            obj -> (List<WebElement>) ReflectUtil.getFieldValue(obj, "webElements");
 
-    protected final BiConsumer<Object, List<WebElement>> setElements =
-            (obj, elements) -> ReflectUtil.setFieldValue(obj, "elements", elements);
+    protected static final BiConsumer<Object, List<WebElement>> setElements =
+            (obj, elements) -> ReflectUtil.setFieldValue(obj, "webElements", elements);
 
-    protected final Function<Object, ElementOperate> getElementOperate =
+    protected static final Function<Object, ElementOperate> getElementOperate =
             obj -> (ElementOperate) ReflectUtil.getFieldValue(obj, "elementOperate");
+
+    protected static final BiConsumer<Object, ElementOperate> setElementOperate =
+            (obj, elementOperate) -> ReflectUtil.setFieldValue(obj, "elementOperate", elementOperate);
 
 }

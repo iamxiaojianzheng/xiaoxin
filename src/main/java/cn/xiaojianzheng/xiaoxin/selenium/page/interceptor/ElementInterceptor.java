@@ -6,6 +6,7 @@ import cn.xiaojianzheng.xiaoxin.selenium.page.Element;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.internal.Require;
 
 import java.lang.reflect.Method;
 
@@ -19,16 +20,17 @@ public class ElementInterceptor extends AbstractInterceptor implements MethodInt
     @Override
     public Object intercept(Object o, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         AbstractWebDriver webDriver = getWebDriver.apply(o);
-        if (webDriver != null) {
-            WebElement element = getElement.apply(o);
-            if (element == null) {
-                ElementOperate elementOperate = getElementOperate.apply(o);
-                if (elementOperate != null) {
-                    element = webDriver.findElement(elementOperate);
-                    setElement.accept(o, element);
-                }
-            }
+        Require.nonNull("webDriver", webDriver,
+                "webDriver回填Element失败：Object {}, Method {}, Object[] {}", o, method, args);
+
+        if (method.getName().equals("getWebElement")) {
+            ElementOperate elementOperate = getElementOperate.apply(o);
+            Require.nonNull("elementOperate", elementOperate);
+            WebElement element = webDriver.findElement(elementOperate);
+            // 回填 webElement
+            setElement.accept(o, element);
         }
+
         return proxy.invokeSuper(o, args);
     }
 }

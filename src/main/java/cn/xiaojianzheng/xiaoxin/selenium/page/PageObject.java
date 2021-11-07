@@ -52,4 +52,8 @@ public abstract class PageObject {
         return webDriver.getCurrentUrl();
     }
 
+    protected void close() {
+        webDriver.close();
+    }
+
 }

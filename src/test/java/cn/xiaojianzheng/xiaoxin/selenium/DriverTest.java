@@ -3,13 +3,11 @@ package cn.xiaojianzheng.xiaoxin.selenium;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.RuntimeUtil;
-import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
-import cn.xiaojianzheng.xiaoxin.selenium.driver.ChromeWebDriver;
-import cn.xiaojianzheng.xiaoxin.selenium.driver.FirefoxWebDriver;
-import cn.xiaojianzheng.xiaoxin.selenium.driver.InternetWebDriver;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.*;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.builder.DriverBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 
 import java.io.File;
 import java.io.InputStream;
@@ -55,22 +53,32 @@ public class DriverTest {
         if (driver != null) driver.quit();
     }
 
-    protected ChromeWebDriver chrome() {
-        driver = DriverBuilder.driver()
-                .chrome().driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).build();
-        return (ChromeWebDriver) driver;
+    protected static ChromeWebDriver chrome() {
+        ChromeWebDriver chrome = DriverBuilder.driver()
+                .driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).chrome();
+        driver = chrome;
+        return chrome;
     }
 
-    protected InternetWebDriver ie() {
-        driver = DriverBuilder.driver()
-                .ie().driverPath(driverPath).globalWaitTime(Duration.ofSeconds(5)).build();
-        return (InternetWebDriver) driver;
+    protected static InternetWebDriver ie() {
+        InternetWebDriver ie = DriverBuilder.driver()
+                .driverPath(driverPath).globalWaitTime(Duration.ofSeconds(30)).ie();
+        driver = ie;
+        return ie;
     }
 
-    protected FirefoxWebDriver firefox() {
-        driver = DriverBuilder.driver()
-                .chrome().driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).build();
-        return (FirefoxWebDriver) driver;
+    protected static FirefoxWebDriver firefox() {
+        FirefoxWebDriver firefox = DriverBuilder.driver()
+                .driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).firefox();
+        driver = firefox;
+        return firefox;
+    }
+
+    protected static EdgeWebDriver edge() {
+        EdgeWebDriver edge = DriverBuilder.driver()
+                .driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).edge();
+        driver = edge;
+        return edge;
     }
 
 }

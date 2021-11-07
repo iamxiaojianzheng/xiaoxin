@@ -1,23 +1,20 @@
 package cn.xiaojianzheng.xiaoxin.selenium.page;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.*;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.module.Chrome;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.module.IE;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
-import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.NoLoading;
-import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.PreLoading;
-import cn.xiaojianzheng.xiaoxin.selenium.page.interceptor.ElementInterceptor;
-import cn.xiaojianzheng.xiaoxin.selenium.page.interceptor.ElementsInterceptor;
-import cn.xiaojianzheng.xiaoxin.selenium.page.interceptor.PageObjectInterceptor;
+import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.Window;
+import cn.xiaojianzheng.xiaoxin.selenium.page.interceptor.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Provides;
+import com.google.inject.matcher.Matchers;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
-import org.openqa.selenium.WebElement;
 
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.function.Function;
 
 /**
  * 用于包装 {@link PageObject } 子类以实现预加载功能。
@@ -26,99 +23,88 @@ import java.util.function.Function;
  * @since 1.0
  */
 @Slf4j
-public class PageObjectUtil {
+public class PageObjectUtil extends AbstractInterceptor {
 
-    private static final Callback[] callbacks = new Callback[]{new PageObjectInterceptor()};
+    public static <T extends PageObject> T wrapPage(Class<T> clazz, ChromeWebDriver driver) {
+        return Guice.createInjector(new AbstractModule() {
+            @Provides
+            @Chrome
+            ChromeWebDriver chromeWebDriver() {
+                return driver;
+            }
+        }).getInstance(clazz);
+    }
 
-    private static final Function<Object, ElementOperate> getElementOperate =
-            obj -> (ElementOperate) ReflectUtil.getFieldValue(obj, "elementOperate");
+    public static <T extends PageObject> T wrapPage(Class<T> clazz, InternetWebDriver driver) {
+        T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
+            @Provides
+            @IE
+            InternetWebDriver driver() {
+                return driver;
+            }
+        }).getInstance(clazz);
+        wrapElementOrElements(clazz, instance);
+        return instance;
+    }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends PageObject> T wrapPage(Class<T> clazz, String url, AbstractWebDriver webDriver) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(clazz);
-        enhancer.setCallbacks(callbacks);
-        PageObject page = (PageObject) enhancer.create(new Class[]{AbstractWebDriver.class}, new Object[]{webDriver});
+    public static <T extends PageObject> T wrapPage(Class<T> clazz, EdgeWebDriver driver) {
+        return Guice.createInjector(new PageObjectModel(), new AbstractModule() {
+            @Provides
+            @IE
+            EdgeWebDriver driver() {
+                return driver;
+            }
+        }).getInstance(clazz);
+    }
 
-        if (StrUtil.isNotBlank(url)) {
-            page.open(url);
-        }
+    public static <T extends PageObject> T wrapPage(Class<T> clazz, FirefoxWebDriver driver) {
+        return Guice.createInjector(new PageObjectModel(), new AbstractModule() {
+            @Provides
+            @IE
+            FirefoxWebDriver driver() {
+                return driver;
+            }
+        }).getInstance(clazz);
+    }
 
+    /**
+     * 包装Element或Elements，实现WebDriver回填、方法拦截
+     */
+    private static <T extends PageObject> void wrapElementOrElements(Class<T> clazz, Object pageObject) {
         Field[] selfFields = clazz.getDeclaredFields();
         for (Field field : selfFields) {
-            wrapElement(page, field);
-            // 是否需要对该字段进行预加载
-            if (needPreLoading(clazz, field)) {
-                preFind(page, field, webDriver);
-            }
-        }
-
-        return (T) page;
-    }
-
-    public static <T extends PageObject> T wrapPage(Class<T> clazz, AbstractWebDriver webDriver) {
-        return wrapPage(clazz, null, webDriver);
-    }
-
-    /**
-     * 包装Element或Elements，实现方法拦截
-     */
-    private static void wrapElement(PageObject pageObject, Field elementField) {
-        Class<?> elementFieldType = elementField.getType();
-        if (elementFieldType == Element.class || elementFieldType == Elements.class) {
-            Object elementFieldObj = ReflectUtil.getFieldValue(pageObject, elementField);
-            Object elementOperate = ReflectUtil.getFieldValue(elementFieldObj, "elementOperate");
-            Enhancer enhancer = new Enhancer();
-            if (elementFieldType == Element.class) {
-                enhancer.setSuperclass(Element.class);
-                enhancer.setCallback(new ElementInterceptor());
-                Element wrapElement = (Element) enhancer.create(new Class[]{ElementOperate.class}, new Object[]{elementOperate});
-                ReflectUtil.setFieldValue(pageObject, elementField, wrapElement);
-            } else {
-                enhancer.setSuperclass(Elements.class);
-                enhancer.setCallback(new ElementsInterceptor());
-                Elements wrapElement = (Elements) enhancer.create(new Class[]{ElementOperate.class}, new Object[]{elementOperate});
-                ReflectUtil.setFieldValue(pageObject, elementField, wrapElement);
-            }
-        }
-    }
-
-    /**
-     * 元素预加载
-     */
-    private static void preFind(Object obj, Field field, AbstractWebDriver webDriver) {
-        Object element = ReflectUtil.getFieldValue(obj, field);
-        ElementOperate elementOperate;
-        if (ObjectUtil.isNotEmpty(element)) {
-            if (element instanceof Element) {
-                elementOperate = getElementOperate.apply(element);
-                if (ObjectUtil.isNotEmpty(elementOperate)) {
-                    WebElement webElement = webDriver.findElement(elementOperate);
-                    ReflectUtil.setFieldValue(element, "element", webElement);
-                }
-            } else if (element instanceof Elements) {
-                elementOperate = getElementOperate.apply(element);
-                if (ObjectUtil.isNotEmpty(elementOperate)) {
-                    List<WebElement> webElements = webDriver.findElements(elementOperate);
-                    ReflectUtil.setFieldValue(element, "elements", webElements);
+            Class<?> elementFieldType = field.getType();
+            if (elementFieldType == Element.class || elementFieldType == Elements.class) {
+                Object elementFieldObj = ReflectUtil.getFieldValue(pageObject, field);
+                ElementOperate elementOperate = getElementOperate.apply(elementFieldObj);
+                AbstractWebDriver webDriver = getWebDriver.apply(pageObject);
+                Enhancer enhancer = new Enhancer();
+                if (elementFieldType == Element.class) {
+                    enhancer.setSuperclass(Element.class);
+                    enhancer.setCallback(new ElementInterceptor());
+                    Element wrapElement = (Element) enhancer.create(new Class[]{ElementOperate.class}, new Object[]{elementOperate});
+                    ReflectUtil.setFieldValue(pageObject, field, wrapElement);
+                    setWebDriver.accept(wrapElement, webDriver);
+                } else {
+                    enhancer.setSuperclass(Elements.class);
+                    enhancer.setCallback(new ElementsInterceptor());
+                    Elements wrapElements = (Elements) enhancer.create(new Class[]{ElementOperate.class}, new Object[]{elementOperate});
+                    ReflectUtil.setFieldValue(pageObject, field, wrapElements);
+                    setWebDriver.accept(wrapElements, webDriver);
                 }
             }
         }
     }
 
-    private static boolean needPreLoading(Class<?> clazz, Field field) {
-        // 必要条件
-        Class<?> fieldType = field.getType();
-        boolean b1 = (fieldType == Element.class || fieldType == Elements.class);
-        if (!b1) return false;
-
-        // 存在则直接false
-        boolean b2 = field.getAnnotationsByType(NoLoading.class).length == 1;
-        if (b2) return false;
-
-        boolean b3 = clazz.getAnnotationsByType(PreLoading.class).length == 1;
-        boolean b4 = field.getAnnotationsByType(PreLoading.class).length == 1;
-        return b3 || b4;
+    static class PageObjectModel extends AbstractModule {
+        @Override
+        protected void configure() {
+            bindInterceptor(
+                    Matchers.subclassesOf(PageObject.class),
+                    Matchers.any(),
+                    new WindowAutoSwitchInterceptor(), new PageObjectInterceptor()
+            );
+        }
     }
 
 }

@@ -1,13 +1,12 @@
 package cn.xiaojianzheng.xiaoxin.selenium.page.interceptor;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.openqa.selenium.internal.Require;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 /**
  * 拦截Page所有get的调用方法，用于回填 {@link cn.xiaojianzheng.xiaoxin.selenium.page.Element }
@@ -17,25 +16,22 @@ import java.lang.reflect.Method;
  * @since 1.0
  */
 public class PageObjectInterceptor extends AbstractInterceptor implements MethodInterceptor {
-
     @Override
-    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        String methodName = method.getName();
+    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+        String methodName = methodInvocation.getMethod().getName();
         if (methodName.startsWith("get")) {
             String fieldName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
-            Class<?> aClass = obj.getClass();
-            Field field = ReflectUtil.getField(aClass, fieldName);
-            if (field != null) {
-                Object element = ReflectUtil.getFieldValue(obj, field);
-                if (ObjectUtil.isNotEmpty(element)) {
-                    // 回填driver
-                    AbstractWebDriver driver = getWebDriver.apply(obj);
-                    if (getWebDriver.apply(element) == null) {
-                        setWebDriver.accept(element, driver);
-                    }
-                }
+            Object obj = methodInvocation.getThis();
+            Field field = ReflectUtil.getField(obj.getClass(), fieldName);
+            Require.nonNull(fieldName, field, "{}方法对应的字段{}缺失", methodName, fieldName);
+
+            // 回填driver
+            Object element = ReflectUtil.getFieldValue(obj, field);
+            AbstractWebDriver driver = getWebDriver.apply(obj);
+            if (getWebDriver.apply(element) == null) {
+                setWebDriver.accept(element, driver);
             }
         }
-        return proxy.invokeSuper(obj, args);
+        return methodInvocation.proceed();
     }
 }

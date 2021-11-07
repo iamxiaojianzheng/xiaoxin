@@ -1,9 +1,12 @@
 package cn.xiaojianzheng.xiaoxin.selenium.page;
 
-import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.InternetWebDriver;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.module.IE;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ByLocation;
 import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.NoLoading;
 import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.PreLoading;
+import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.Window;
+import com.google.inject.Inject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -17,9 +20,11 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @PreLoading
+@Window("百度")
 public class BaiduPage extends PageObject {
 
-    protected BaiduPage(AbstractWebDriver webDriver) {
+    @Inject
+    public BaiduPage(@IE InternetWebDriver webDriver) {
         super(webDriver);
     }
 

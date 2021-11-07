@@ -19,7 +19,7 @@ class DriverBuilderTest extends DriverTest {
     @Test
     void test() {
         AbstractWebDriver driver = DriverBuilder.driver()
-                .ie().driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).build();
+                .driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).ie();
         driver.openWindow("http://www.baidu.com/")
                 .click(location().id("kw1").moveToClick().build())
                 .input(location().id("kw").inputText("java").as("百度搜索框").build())

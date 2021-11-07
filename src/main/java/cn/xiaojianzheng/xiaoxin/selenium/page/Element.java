@@ -2,7 +2,6 @@ package cn.xiaojianzheng.xiaoxin.selenium.page;
 
 import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
-import lombok.Getter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -24,7 +23,7 @@ public class Element {
     /**
      * Inject by reflection, if you need preloading element.
      */
-    private WebElement element;
+    private WebElement webElement;
 
     /**
      * Used for reflection to complete the findElement operation
@@ -40,30 +39,28 @@ public class Element {
     }
 
     public WebElement findElement(By by) {
-        return element.findElement(by);
+        return webDriver.findElement(by);
     }
 
     public List<WebElement> findElements(By by) {
-        return element.findElements(by);
+        return webDriver.findElements(by);
     }
 
     public void clear() {
-        element.clear();
+        webDriver.clear(elementOperate);
     }
 
     public void input(String text) {
-        element.sendKeys(text);
+        elementOperate.setInputText(text);
+        webDriver.input(elementOperate);
     }
 
     public void click() {
-        element.click();
+        webDriver.click(elementOperate);
     }
 
-    public String getText() {
-        return element.getText();
+    public WebElement getWebElement() {
+        return webElement;
     }
 
-    public WebElement getElement() {
-        return element;
-    }
 }

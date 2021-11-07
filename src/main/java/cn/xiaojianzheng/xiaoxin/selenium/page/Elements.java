@@ -23,7 +23,7 @@ public class Elements {
     /**
      * Inject by reflection, if you need preloading element.
      */
-    private List<WebElement> elements;
+    private List<WebElement> webElements;
 
     private ElementOperate elementOperate;
 
@@ -35,8 +35,8 @@ public class Elements {
         this.elementOperate = elementOperate;
     }
 
-    public List<WebElement> getElements() {
-        return elements;
+    public List<WebElement> getWebElements() {
+        return webElements;
     }
 
 }

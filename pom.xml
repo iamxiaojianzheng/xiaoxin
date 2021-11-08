@@ -36,7 +36,6 @@
     </scm>
 
     <dependencies>
-
         <!-- 核心依赖 -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
@@ -52,6 +51,11 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>5.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hynnet</groupId>
+            <artifactId>jacob</artifactId>
+            <version>1.18</version>
         </dependency>
 
         <!-- 日志 -->
@@ -88,13 +92,6 @@
             <artifactId>assertj-core</artifactId>
             <version>3.21.0</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- autoit -->
-        <dependency>
-            <groupId>org.AutoIT</groupId>
-            <artifactId>AutoIT-java</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <!-- util -->

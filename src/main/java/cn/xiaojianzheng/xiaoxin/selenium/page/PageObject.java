@@ -32,11 +32,11 @@ import cn.xiaojianzheng.xiaoxin.selenium.driver.AbstractWebDriver;
  * @author JIAHE
  * @since 1.0
  */
-public abstract class PageObject {
+public abstract class PageObject<T extends AbstractWebDriver> {
 
-    protected final AbstractWebDriver webDriver;
+    protected final T webDriver;
 
-    protected PageObject(AbstractWebDriver webDriver) {
+    protected PageObject(T webDriver) {
         this.webDriver = webDriver;
     }
 

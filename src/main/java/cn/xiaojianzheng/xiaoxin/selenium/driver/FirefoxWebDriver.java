@@ -24,7 +24,7 @@ public class FirefoxWebDriver extends AbstractWebDriver {
         super(new FirefoxDriver(ObjectUtil.isNotEmpty(options) ? DEFAULT_OPTIONS.merge(options) : DEFAULT_OPTIONS));
         super.setGlobalWaitTime(globalWaitTime);
 
-        this.firefoxDriver = (FirefoxDriver) super.getWebDriver();
+        this.firefoxDriver = (FirefoxDriver) super.originWebDriver;
 
         if (StrUtil.isNotBlank(driverPath)) {
             System.setProperty("webdriver.chrome.driver", driverPath);

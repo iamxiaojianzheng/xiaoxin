@@ -42,6 +42,8 @@ public abstract class AbstractWebDriver
 
     private final Duration DEFAULT_SLEEP = Duration.ofSeconds(1);
 
+    protected final WebDriver originWebDriver;
+
     @Getter
     private final WebDriver webDriver;
 
@@ -64,6 +66,7 @@ public abstract class AbstractWebDriver
         };
         EventFiringDecorator eventFiringDecorator = new EventFiringDecorator(listeners);
 
+        this.originWebDriver = webDriver;
         this.webDriver = eventFiringDecorator.decorate(webDriver);
         this.actions = new Actions(this.webDriver);
         this.navigation = this.webDriver.navigate();

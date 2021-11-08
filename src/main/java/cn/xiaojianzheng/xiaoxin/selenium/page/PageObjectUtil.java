@@ -3,9 +3,10 @@ package cn.xiaojianzheng.xiaoxin.selenium.page;
 import cn.hutool.core.util.ReflectUtil;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.*;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.module.Chrome;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.module.Edge;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.module.Firefox;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.module.IE;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
-import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.Window;
 import cn.xiaojianzheng.xiaoxin.selenium.page.interceptor.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -26,13 +27,15 @@ import java.lang.reflect.Field;
 public class PageObjectUtil extends AbstractInterceptor {
 
     public static <T extends PageObject> T wrapPage(Class<T> clazz, ChromeWebDriver driver) {
-        return Guice.createInjector(new AbstractModule() {
+        T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
             @Chrome
             ChromeWebDriver chromeWebDriver() {
                 return driver;
             }
         }).getInstance(clazz);
+        wrapElementOrElements(clazz, instance);
+        return instance;
     }
 
     public static <T extends PageObject> T wrapPage(Class<T> clazz, InternetWebDriver driver) {
@@ -48,23 +51,27 @@ public class PageObjectUtil extends AbstractInterceptor {
     }
 
     public static <T extends PageObject> T wrapPage(Class<T> clazz, EdgeWebDriver driver) {
-        return Guice.createInjector(new PageObjectModel(), new AbstractModule() {
+        T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
-            @IE
+            @Edge
             EdgeWebDriver driver() {
                 return driver;
             }
         }).getInstance(clazz);
+        wrapElementOrElements(clazz, instance);
+        return instance;
     }
 
     public static <T extends PageObject> T wrapPage(Class<T> clazz, FirefoxWebDriver driver) {
-        return Guice.createInjector(new PageObjectModel(), new AbstractModule() {
+        T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
-            @IE
+            @Firefox
             FirefoxWebDriver driver() {
                 return driver;
             }
         }).getInstance(clazz);
+        wrapElementOrElements(clazz, instance);
+        return instance;
     }
 
     /**

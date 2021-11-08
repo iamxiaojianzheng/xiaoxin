@@ -39,7 +39,7 @@ public class EdgeWebDriver extends AbstractWebDriver {
         super(new EdgeDriver(ObjectUtil.isNotEmpty(edgeOptions) ? DEFAULT_OPTIONS.merge(edgeOptions) : DEFAULT_OPTIONS));
         super.setGlobalWaitTime(globalWaitTime);
 
-        this.edgeDriver = (EdgeDriver) super.getWebDriver();
+        this.edgeDriver = (EdgeDriver) super.originWebDriver;
 
         // 屏蔽网站对selenium的检测
         this.edgeDriver.executeCdpCommand("Page.addScriptToEvaluateOnNewDocument",

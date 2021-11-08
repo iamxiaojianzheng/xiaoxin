@@ -1,7 +1,9 @@
 package cn.xiaojianzheng.xiaoxin.selenium.page;
 
 import cn.xiaojianzheng.xiaoxin.selenium.DriverTest;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.ChromeWebDriver;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.InternetWebDriver;
+import cn.xiaojianzheng.xiaoxin.selenium.driver.module.Chrome;
 import cn.xiaojianzheng.xiaoxin.selenium.driver.module.IE;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ByLocation;
 import cn.xiaojianzheng.xiaoxin.selenium.page.annotation.NoLoading;
@@ -62,9 +64,9 @@ class PageObjectUtilTest extends DriverTest {
     @Getter
     @PreLoading
     @Window("百度")
-    static class BaiduPage extends PageObject {
+    static class BaiduPage extends PageObject<ChromeWebDriver> {
         @Inject
-        public BaiduPage(@IE InternetWebDriver webDriver) {
+        public BaiduPage(@Chrome ChromeWebDriver webDriver) {
             super(webDriver);
         }
 
@@ -84,11 +86,11 @@ class PageObjectUtilTest extends DriverTest {
     @Getter
     @PreLoading
     @Window("百度百科")
-    static class BaiduBaikePage extends PageObject {
+    static class BaiduBaikePage extends PageObject<ChromeWebDriver> {
         private final Element summary = new Element(location().className("lemma-summary").build());
 
         @Inject
-        protected BaiduBaikePage(@IE InternetWebDriver webDriver) {
+        protected BaiduBaikePage(@Chrome ChromeWebDriver webDriver) {
             super(webDriver);
         }
 

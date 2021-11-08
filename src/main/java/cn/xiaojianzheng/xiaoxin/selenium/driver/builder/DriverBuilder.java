@@ -53,13 +53,7 @@ public class DriverBuilder {
             if (StrUtil.isNotBlank(driverPath)) {
                 System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY, driverPath);
             }
-            return Guice.createInjector(new AbstractModule() {
-                @Provides
-                @Chrome
-                ChromeWebDriver chromeWebDriver() {
-                    return new ChromeWebDriver(driverPath, globalWaitTime, chromeOptions);
-                }
-            }).getInstance(ChromeWebDriver.class);
+            return new ChromeWebDriver(driverPath, globalWaitTime, chromeOptions);
         }
 
         public Builder chromeOptions(ChromeOptions options) {
@@ -71,13 +65,7 @@ public class DriverBuilder {
             if (StrUtil.isNotBlank(driverPath)) {
                 System.setProperty(EdgeDriverService.EDGE_DRIVER_EXE_PROPERTY, driverPath);
             }
-            return Guice.createInjector(new AbstractModule() {
-                @Provides
-                @Edge
-                EdgeWebDriver edge() {
-                    return new EdgeWebDriver(driverPath, globalWaitTime, edgeOptions);
-                }
-            }).getInstance(EdgeWebDriver.class);
+            return new EdgeWebDriver(driverPath, globalWaitTime, edgeOptions);
         }
 
         public Builder edgeOptions(EdgeOptions edgeOptions) {
@@ -104,13 +92,7 @@ public class DriverBuilder {
             if (StrUtil.isNotBlank(driverPath)) {
                 System.setProperty("webdriver.gecko.driver", driverPath);
             }
-            return Guice.createInjector(new AbstractModule() {
-                @Provides
-                @Firefox
-                FirefoxWebDriver driver() {
-                    return new FirefoxWebDriver(driverPath, globalWaitTime, firefoxOptions);
-                }
-            }).getInstance(FirefoxWebDriver.class);
+            return new FirefoxWebDriver(driverPath, globalWaitTime, firefoxOptions);
         }
 
         /**

@@ -31,7 +31,7 @@ public class ChromeWebDriver extends AbstractWebDriver {
         super(new ChromeDriver(ObjectUtil.isNotEmpty(options) ? DEFAULT_OPTIONS.merge(options) : DEFAULT_OPTIONS));
         super.setGlobalWaitTime(globalWaitTime);
 
-        this.chromeDriver = (ChromeDriver) super.getWebDriver();
+        this.chromeDriver = (ChromeDriver) super.originWebDriver;
 
         // 屏蔽网站对selenium的检测
         this.chromeDriver.executeCdpCommand("Page.addScriptToEvaluateOnNewDocument",
@@ -43,7 +43,7 @@ public class ChromeWebDriver extends AbstractWebDriver {
     }
 
     /**
-     * 将当前窗口内容另存为PDF
+     * 将当前窗口内容另存为PDF(<b>基于headless模式</b>)
      *
      * @param pdfSavePath pdf 保存路径
      * @return file object
@@ -57,7 +57,7 @@ public class ChromeWebDriver extends AbstractWebDriver {
     }
 
     /**
-     * 将当前窗口内容另存为PDF
+     * 将当前窗口内容另存为PDF(<b>基于headless模式</b>)
      *
      * @param printOptions 打印的相关参数
      * @return pdf object

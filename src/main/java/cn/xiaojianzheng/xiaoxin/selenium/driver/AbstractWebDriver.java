@@ -7,7 +7,6 @@ import cn.xiaojianzheng.xiaoxin.selenium.base.ElementBehavior;
 import cn.xiaojianzheng.xiaoxin.selenium.base.UntilCondition;
 import cn.xiaojianzheng.xiaoxin.selenium.base.WindowBehavior;
 import cn.xiaojianzheng.xiaoxin.selenium.listener.*;
-import cn.xiaojianzheng.xiaoxin.selenium.listener.decorator.WindowDecorator;
 import cn.xiaojianzheng.xiaoxin.selenium.location.ElementOperate;
 import lombok.Getter;
 import org.openqa.selenium.*;
@@ -22,6 +21,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -98,6 +98,11 @@ public abstract class AbstractWebDriver
      */
     public <T> AbstractWebDriver until(ExpectedCondition<T> expectedCondition) {
         this.defaultWebDriverWait.until(expectedCondition);
+        return this;
+    }
+
+    public <T> AbstractWebDriver until(ExpectedCondition<T> expectedCondition, int seconds) {
+        this.getWebDriverWait(location().waitTime(seconds).build()).until(expectedCondition);
         return this;
     }
 
@@ -186,10 +191,10 @@ public abstract class AbstractWebDriver
      * 这将遵循服务器发出的重定向或作为返回HTML中的元重定向发出的重定向。
      * 如果元重定向在任何持续时间内“休息”，最好等到此超时结束，
      * 因为如果在您的测试执行时基础页面发生变化，未来对此接口的调用结果将与新加载的结果有所不同。
-     * 相似的方法 {@link org.openqa.selenium.WebDriver.Navigation#to(String)}.
+     * 相似的方法 {@link WebDriver.Navigation#to(String)}.
      *
      * @param url 要加载的 URL。必须是完全限定的 URL
-     * @see org.openqa.selenium.PageLoadStrategy
+     * @see PageLoadStrategy
      */
     public AbstractWebDriver openWindow(String url) {
         webDriver.get(url);
@@ -288,7 +293,21 @@ public abstract class AbstractWebDriver
                 return this;
             }
         }
-        throw new NoSuchWindowException("Cannot find the window whose url contains keyword");
+        throw new NoSuchWindowException("Cannot find the window whose urlContains contains keyword");
+    }
+
+    public AbstractWebDriver switchWindowByUrl(String urlKeyword, int windowNumber, int seconds) {
+        return this.switchWindowByUrl(location().windowUrl(urlKeyword).waitWindowNumber(windowNumber).waitTime(seconds).build());
+    }
+
+    public AbstractWebDriver switchWindowByUrl(ElementOperate elementOperate) {
+        int i = elementOperate.getWaitWindowNumber();
+        WebDriverWait webDriverWait = getWebDriverWait(elementOperate);
+        if (i > 0) {
+            webDriverWait.until(numberOfWindowsToBe(i));
+        }
+        switchWindowByUrl(elementOperate.getWindowUrl());
+        return this;
     }
 
     /**
@@ -308,7 +327,31 @@ public abstract class AbstractWebDriver
         throw new NoSuchWindowException(StrUtil.format("Cannot find the window whose title contains keyword[%s] ", nameKeyword));
     }
 
+    public AbstractWebDriver switchWindowByName(String nameKeyword, int windowNumber, int seconds) {
+        return this.switchWindowByUrl(location().windowName(nameKeyword).waitWindowNumber(windowNumber).waitTime(seconds).build());
+    }
+
+    public AbstractWebDriver switchWindowByName(ElementOperate elementOperate) {
+        int i = elementOperate.getWaitWindowNumber();
+        WebDriverWait webDriverWait = getWebDriverWait(elementOperate);
+        if (i > 0) {
+            webDriverWait.until(numberOfWindowsToBe(i));
+        }
+        switchWindowByUrl(elementOperate.getWindowName());
+        return this;
+    }
+
     // ============== switch iframe ==============
+
+    public AbstractWebDriver defaultContent() {
+        webDriver.switchTo().defaultContent();
+        return this;
+    }
+
+    public AbstractWebDriver parentFrame() {
+        webDriver.switchTo().parentFrame();
+        return this;
+    }
 
     /**
      * 根据name属性或id属性切换iframe，name属性优先。
@@ -325,7 +368,7 @@ public abstract class AbstractWebDriver
      *
      * @param indexList 索引列表
      */
-    public AbstractWebDriver switchIframe(Integer... indexList) {
+    public AbstractWebDriver switchIframe(int... indexList) {
         for (Integer i : indexList) {
             webDriver.switchTo().frame(i);
         }
@@ -352,12 +395,6 @@ public abstract class AbstractWebDriver
     public AbstractWebDriver click(By by) {
         return click(location().by(by).build());
     }
-
-//    /**
-//     * 单击此元素，详情查看{@link AbstractWebDriver#click(By by)}方法。
-//     */
-//    public AbstractWebDriver click(ElementOperate elementOperate) {
-//    }
 
     /**
      * 单击此元素，详情查看{@link AbstractWebDriver#click(By by)}方法。
@@ -420,7 +457,7 @@ public abstract class AbstractWebDriver
      * 使用此方法模拟输入元素，这可能会设置其值。
      */
     public AbstractWebDriver input(By by, String text) {
-        return input(location().by(by).inputText(text).build());
+        return input(location().by(by).inputText(text));
     }
 
     /**
@@ -613,7 +650,7 @@ public abstract class AbstractWebDriver
     // ================= alert ==================
 
     public AbstractWebDriver alert(boolean accept) {
-        return accept ? alert(location().acceptAlert().build()) : alert(location().dismissAlert().build());
+        return accept ? alert(location().acceptAlert()) : alert(location().dismissAlert());
     }
 
     public AbstractWebDriver alert(ElementOperate elementOperate) {
@@ -776,6 +813,16 @@ public abstract class AbstractWebDriver
     public void screenshotAsFile(File file) {
         byte[] bytes = webDriver.findElement(By.tagName("body")).getScreenshotAs(OutputType.BYTES);
         FileUtil.writeBytes(bytes, file);
+    }
+
+    // ============== sleep =================
+
+    public AbstractWebDriver sleep(long seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        } catch (InterruptedException ignored) {
+        }
+        return this;
     }
 
     // =============== private method ============

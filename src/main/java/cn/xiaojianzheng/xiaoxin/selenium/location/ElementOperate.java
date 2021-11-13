@@ -2,6 +2,7 @@ package cn.xiaojianzheng.xiaoxin.selenium.location;
 
 import lombok.Data;
 import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 
 import java.time.Duration;
 
@@ -17,6 +18,9 @@ public class ElementOperate {
     private Duration waitTime;
     private Duration pollTime;
     private boolean noWait;
+
+    // until
+    private ExpectedCondition<?> expectedCondition;
 
     // exception
     private String describe;
@@ -36,6 +40,11 @@ public class ElementOperate {
 
     // alert
     private boolean acceptAlert = false;
+
+    // window
+    private String windowName;
+    private String windowUrl;
+    private int waitWindowNumber = 0;
 
     public static LocationBuilder location() {
         return new LocationBuilder(new ElementOperate());
@@ -58,13 +67,19 @@ public class ElementOperate {
             return this;
         }
 
-        public LocationBuilder waitTime(Duration waitTime) {
-            this.elementOperate.setWaitTime(waitTime);
+        /**
+         * 等待时间，单位秒
+         */
+        public LocationBuilder waitTime(int waitTime) {
+            this.elementOperate.setWaitTime(Duration.ofSeconds(waitTime));
             return this;
         }
 
-        public LocationBuilder pollTime(Duration pollTime) {
-            this.elementOperate.setPollTime(pollTime);
+        /**
+         * 等待轮询频率，默认 1秒
+         */
+        public LocationBuilder pollTime(int pollTime) {
+            this.elementOperate.setPollTime(Duration.ofSeconds(pollTime));
             return this;
         }
 
@@ -74,6 +89,14 @@ public class ElementOperate {
         public LocationBuilder noWait() {
             this.elementOperate.setNoWait(true);
             return this;
+        }
+
+        /**
+         * 等待条件
+         */
+        public <T> ElementOperate until(ExpectedCondition<T> expectedCondition) {
+            this.elementOperate.setExpectedCondition(expectedCondition);
+            return elementOperate;
         }
 
         /**
@@ -100,9 +123,9 @@ public class ElementOperate {
         /**
          * 输入的内容
          */
-        public LocationBuilder inputText(String inputText) {
+        public ElementOperate inputText(String inputText) {
             this.elementOperate.setInputText(inputText);
-            return this;
+            return elementOperate;
         }
 
         /**
@@ -116,16 +139,37 @@ public class ElementOperate {
         /**
          * 确定alert
          */
-        public LocationBuilder dismissAlert() {
+        public ElementOperate dismissAlert() {
             this.elementOperate.setAcceptAlert(false);
-            return this;
+            return elementOperate;
         }
 
         /**
          * 取消alert
          */
-        public LocationBuilder acceptAlert() {
+        public ElementOperate acceptAlert() {
             this.elementOperate.setAcceptAlert(true);
+            return elementOperate;
+        }
+
+        /**
+         * 窗口名称关键字
+         */
+        public LocationBuilder windowName(String windowName) {
+            this.elementOperate.setWindowName(windowName);
+            return this;
+        }
+
+        /**
+         * 窗口URL关键字
+         */
+        public LocationBuilder windowUrl(String windowUrl) {
+            this.elementOperate.setWindowName(windowUrl);
+            return this;
+        }
+
+        public LocationBuilder waitWindowNumber(int waitWindowNumber) {
+            this.elementOperate.setWaitWindowNumber(waitWindowNumber);
             return this;
         }
 
@@ -140,46 +184,46 @@ public class ElementOperate {
         /**
          * action点击
          */
-        public LocationBuilder actionClick() {
+        public ElementOperate actionClick() {
             this.elementOperate.resetClick();
             this.elementOperate.setActionClick(true);
-            return this;
+            return elementOperate;
         }
 
         /**
          * 右击
          */
-        public LocationBuilder rightClick() {
+        public ElementOperate rightClick() {
             this.elementOperate.resetClick();
             this.elementOperate.setRightClick(true);
-            return this;
+            return elementOperate;
         }
 
         /**
          * 移动点击
          */
-        public LocationBuilder moveToClick() {
+        public ElementOperate moveToClick() {
             this.elementOperate.resetClick();
             this.elementOperate.setMoveToClick(true);
-            return this;
+            return elementOperate;
         }
 
         /**
          * 双击
          */
-        public LocationBuilder doubleClick() {
+        public ElementOperate doubleClick() {
             this.elementOperate.resetClick();
             this.elementOperate.setDoubleClick(true);
-            return this;
+            return elementOperate;
         }
 
         /**
          * js点击
          */
-        public LocationBuilder jsClick() {
+        public ElementOperate jsClick() {
             this.elementOperate.resetClick();
             this.elementOperate.setJsClick(true);
-            return this;
+            return elementOperate;
         }
 
         /**

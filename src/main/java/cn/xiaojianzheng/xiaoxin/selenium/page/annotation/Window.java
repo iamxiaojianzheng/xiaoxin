@@ -1,6 +1,5 @@
 package cn.xiaojianzheng.xiaoxin.selenium.page.annotation;
 
-import cn.hutool.core.annotation.Alias;
 import org.openqa.selenium.WebDriver;
 
 import java.lang.annotation.*;
@@ -13,23 +12,37 @@ import java.lang.annotation.*;
  * @since 1.0
  */
 @Inherited
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Window {
 
     /**
-     * Return the keyword of window name
+     * Return the keyword of window title
      *
-     * @return the keyword of window name
+     * @return the keyword of window title
      */
-    String value();
+    String titleContains() default "";
+
+    /**
+     * Return the regex pattern of window title
+     *
+     * @return the regex pattern of window title
+     */
+    String titleRegex() default "";
 
     /**
      * Return the keyword of window url
      *
      * @return the keyword of window url
      */
-    String url() default "";
+    String urlContains() default "";
+
+    /**
+     * Return the regex pattern of window url
+     *
+     * @return the regex pattern of window url
+     */
+    String urlRegex() default "";
 
     /**
      * Returns the index of the current window in all windows

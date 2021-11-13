@@ -17,29 +17,22 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
  * @author JIAHE
  * @since 1.0
  */
-@EqualsAndHashCode(callSuper = true)
 @Getter
-@PreLoading
-@Window("百度")
-public class BaiduPage extends PageObject {
-
+@Window(titleContains = "百度")
+public class BaiduPage extends PageObject<InternetWebDriver> {
     @Inject
     public BaiduPage(@IE InternetWebDriver webDriver) {
         super(webDriver);
     }
 
-    private final Element searchInput = new Element(location().id("kw").build());
-
+    private final Element searchInput = new Element(location().id("kw").clear().build());
     private final Element searchButton = new Element(location().id("su").build());
-
-    @NoLoading
-    private final Element baiduBaike = new Element(location().containsText("a", "(计算机编程语言) - 百度百科").moveToClick().build());
+    private final Element baiduBaike = new Element(location().containsText("a", "(计算机编程语言) - 百度百科").moveToClick());
 
     public void baidu(String text) {
-        this.searchInput.input(text);
+        searchInput.input(text);
         webDriver.until(visibilityOfElementLocated(ByLocation.className("bdsug")));
         this.searchButton.click();
         webDriver.until(visibilityOfElementLocated(ByLocation.className("result-op")));
     }
-
 }

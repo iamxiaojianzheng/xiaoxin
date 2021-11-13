@@ -21,8 +21,8 @@ class DriverBuilderTest extends DriverTest {
         AbstractWebDriver driver = DriverBuilder.driver()
                 .driverPath(driverPath).globalWaitTime(Duration.ofSeconds(10)).ie();
         driver.openWindow("http://www.baidu.com/")
-                .click(location().id("kw1").moveToClick().build())
-                .input(location().id("kw").inputText("java").as("百度搜索框").build())
+                .click(location().id("kw1").moveToClick())
+                .input(location().id("kw").as("百度搜索框").inputText("java"))
                 .until(visibilityOfElementLocated(ByLocation.className("bdsug")))
                 .click(ByLocation.id("su"));
         driver.quit();

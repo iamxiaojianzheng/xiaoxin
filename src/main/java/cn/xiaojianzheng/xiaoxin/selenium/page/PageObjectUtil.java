@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
 @Slf4j
 public class PageObjectUtil extends AbstractInterceptor {
 
-    public static <T extends PageObject> T wrapPage(Class<T> clazz, ChromeWebDriver driver) {
+    public static <T extends PageObject<ChromeWebDriver>> T wrapPage(Class<T> clazz, ChromeWebDriver driver) {
         T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
             @Chrome
@@ -38,7 +38,7 @@ public class PageObjectUtil extends AbstractInterceptor {
         return instance;
     }
 
-    public static <T extends PageObject> T wrapPage(Class<T> clazz, InternetWebDriver driver) {
+    public static <T extends PageObject<InternetWebDriver>> T wrapPage(Class<T> clazz, InternetWebDriver driver) {
         T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
             @IE
@@ -50,7 +50,7 @@ public class PageObjectUtil extends AbstractInterceptor {
         return instance;
     }
 
-    public static <T extends PageObject> T wrapPage(Class<T> clazz, EdgeWebDriver driver) {
+    public static <T extends PageObject<EdgeWebDriver>> T wrapPage(Class<T> clazz, EdgeWebDriver driver) {
         T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
             @Edge
@@ -62,7 +62,7 @@ public class PageObjectUtil extends AbstractInterceptor {
         return instance;
     }
 
-    public static <T extends PageObject> T wrapPage(Class<T> clazz, FirefoxWebDriver driver) {
+    public static <T extends PageObject<FirefoxWebDriver>> T wrapPage(Class<T> clazz, FirefoxWebDriver driver) {
         T instance = Guice.createInjector(new PageObjectModel(), new AbstractModule() {
             @Provides
             @Firefox
@@ -77,7 +77,7 @@ public class PageObjectUtil extends AbstractInterceptor {
     /**
      * 包装Element或Elements，实现WebDriver回填、方法拦截
      */
-    private static <T extends PageObject> void wrapElementOrElements(Class<T> clazz, Object pageObject) {
+    private static <T extends PageObject<?>> void wrapElementOrElements(Class<T> clazz, Object pageObject) {
         Field[] selfFields = clazz.getDeclaredFields();
         for (Field field : selfFields) {
             Class<?> elementFieldType = field.getType();
@@ -109,7 +109,9 @@ public class PageObjectUtil extends AbstractInterceptor {
             bindInterceptor(
                     Matchers.subclassesOf(PageObject.class),
                     Matchers.any(),
-                    new WindowAutoSwitchInterceptor(), new PageObjectInterceptor()
+                    new WindowAutoSwitchInterceptor(),
+                    new IframeAutoSwitchInterceptor(),
+                    new PageObjectInterceptor()
             );
         }
     }

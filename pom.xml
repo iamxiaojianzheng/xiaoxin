@@ -11,6 +11,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <hutool-version>5.7.16</hutool-version>
     </properties>
 
     <developers>
@@ -56,6 +57,31 @@
             <groupId>com.hynnet</groupId>
             <artifactId>jacob</artifactId>
             <version>1.18</version>
+        </dependency>
+
+        <!-- properties -->
+        <dependency>
+            <groupId>org.aeonbits.owner</groupId>
+            <artifactId>owner-java8</artifactId>
+            <version>1.0.12</version>
+        </dependency>
+
+        <!-- video -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>4.4-1.5.6</version>
+            <classifier>windows-x86_64</classifier>
         </dependency>
 
         <!-- 日志 -->
@@ -104,7 +130,12 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.7.15</version>
+            <version>${hutool-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-system</artifactId>
+            <version>${hutool-version}</version>
         </dependency>
     </dependencies>
 

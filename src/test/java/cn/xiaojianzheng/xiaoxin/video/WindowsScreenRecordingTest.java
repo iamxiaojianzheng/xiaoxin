@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
@@ -18,7 +19,7 @@ class WindowsScreenRecordingTest {
         String savePath = new File("video/test.mp4").getAbsolutePath();
         WindowsScreenRecording recording = new WindowsScreenRecording();
 
-        ThreadUtil.execute(() -> recording.start(savePath));
+        ThreadUtil.execute(() -> recording.start(Paths.get(savePath)));
 
         log.info("****stop停止录制****");
         while (true) {
